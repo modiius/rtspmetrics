@@ -1,9 +1,7 @@
 global:
   scrape_interval: 15s
-  evaluation_interval: 15s
 
 scrape_configs:
-  # Scrape the app service
-  - job_name: 'app'
+  - job_name: 'rtspmetrics'
     static_configs:
-      - targets: ['app:80']
+      - targets: ['rtspmetrics:8080']
