@@ -98,6 +98,7 @@ func main() {
 				continue
 			}
 
+			// emit metrics after every frame
 			updateRTSPMetrics(c.Stats())
 		}
 	})
