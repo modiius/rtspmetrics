@@ -98,8 +98,22 @@ func main() {
 				continue
 			}
 
-			// emit metrics after every frame
-			updateRTSPMetrics(c.Stats())
+			stats := c.Stats()
+
+			// RTSP
+			ClientConnBytesReceived.Set(float64(stats.Conn.BytesReceived))
+			ClientConnBytesSent.Set(float64(stats.Conn.BytesSent))
+			SessionBytesReceived.Set(float64(stats.Session.BytesReceived))
+
+			// RTP
+			SessionRTPPacketsReceived.Add(float64(stats.Session.RTPPacketsReceived))
+			SessionRTPPacketsLost.Add(float64(stats.Session.RTPPacketsLost))
+			SessionRTPPacketsInError.Add(float64(stats.Session.RTPPacketsInError))
+			SessionRTPJitter.Set(stats.Session.RTPPacketsJitter)
+
+			// RTCP
+			SessionRTCPPacketsReceived.Add(float64(stats.Session.RTCPPacketsReceived))
+			SessionRTCPPacketsInError.Add(float64(stats.Session.RTCPPacketsInError))
 		}
 	})
 
@@ -110,21 +124,4 @@ func main() {
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(":8080", nil)
-}
-
-func updateRTSPMetrics(stats *gortsplib.ClientStats) {
-	// RTSP
-	ClientConnBytesReceived.Set(float64(stats.Conn.BytesReceived))
-	ClientConnBytesSent.Set(float64(stats.Conn.BytesSent))
-	SessionBytesReceived.Set(float64(stats.Session.BytesReceived))
-
-	// RTP
-	SessionRTPPacketsReceived.Add(float64(stats.Session.RTPPacketsReceived))
-	SessionRTPPacketsLost.Add(float64(stats.Session.RTPPacketsLost))
-	SessionRTPPacketsInError.Add(float64(stats.Session.RTPPacketsInError))
-	SessionRTPJitter.Set(stats.Session.RTPPacketsJitter)
-
-	// RTCP
-	SessionRTCPPacketsReceived.Add(float64(stats.Session.RTCPPacketsReceived))
-	SessionRTCPPacketsInError.Add(float64(stats.Session.RTCPPacketsInError))
 }
