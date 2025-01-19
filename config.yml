@@ -1,0 +1,6 @@
+sessions:
+  # Example:
+  # - name: "Camera 1"
+  #   url: "rtsp://camera1.example.com/stream"
+  # - name: "Camera 2"
+  #   url: "rtsp://camera2.example.com/stream"
