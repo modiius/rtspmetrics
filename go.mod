@@ -6,6 +6,7 @@ require (
 	github.com/bluenviron/gortsplib/v4 v4.12.1
 	github.com/pion/rtp v1.8.10
 	github.com/prometheus/client_golang v1.20.5
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -14,6 +15,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtcp v1.2.15 // indirect
