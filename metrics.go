@@ -6,6 +6,12 @@ import (
 )
 
 var (
+	// -- Media --
+
+	FramesPerSecond = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "frames_per_second",
+		Help: "Frames per second of a video stream.",
+	})
 
 	// -- RTSP --
 
