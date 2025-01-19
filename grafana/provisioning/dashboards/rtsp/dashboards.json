@@ -123,7 +123,7 @@
           "expr": "frames_per_second",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{__name__}}",
+          "legendFormat": "{{name}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -131,6 +131,76 @@
       ],
       "title": "Frames Per Second",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "rtspmetrics"
+      },
+      "description": "The average frames per second (FPS) calculated over the entire selected time range of the dashboard.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 11,
+      "interval": "500ms",
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "avg_over_time(frames_per_second[$__range])",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Average Frames Per Second",
+      "type": "gauge"
     },
     {
       "collapsed": false,
@@ -235,7 +305,7 @@
           "expr": "session_bytes_received",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{__name__}}",
+          "legendFormat": "{{name}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -346,7 +416,7 @@
           "expr": "session_rtp_jitter",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{__name__}}",
+          "legendFormat": "{{name}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -511,6 +581,6 @@
   "timezone": "browser",
   "title": "RTSP Metrics",
   "uid": "fe9udvucyafpcf",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }

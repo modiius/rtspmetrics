@@ -17,10 +17,10 @@ import (
 )
 
 type Config struct {
-	Sessions []Session `yaml:"sessions"`
+	Sessions []SessionConfig `yaml:"sessions"`
 }
 
-type Session struct {
+type SessionConfig struct {
 	Name string `yaml:"name"`
 	URL  string `yaml:"url"`
 }
@@ -39,16 +39,27 @@ func main() {
 		log.Fatalf("Failed to parse config file: %v", err)
 	}
 
-	// -- Initialization --
-	c := gortsplib.Client{}
+	// -- Start RTSP Sessions
+	for _, sessionConfig := range config.Sessions {
+		go startSession(sessionConfig)
+	}
 
-	// TODO: https://github.com/modiius/rtspmetrics/issues/2
-	// - Add support for multiple cameras.
-	url, err := base.ParseURL(config.Sessions[0].URL)
+	// -- Start Prometheus Metrics Server --
+	http.Handle("/metrics", promhttp.Handler())
+	log.Println("Serving metrics on :8080")
+	http.ListenAndServe(":8080", nil)
+}
+
+func startSession(config SessionConfig) {
+	// -- Initialization --
+	metrics := NewMetrics(config.Name, config.URL)
+
+	url, err := base.ParseURL(config.URL)
 	if err != nil {
 		log.Fatalf("Failed to parse URL: %v", err)
 	}
 
+	c := gortsplib.Client{}
 	err = c.Start(url.Scheme, url.Host)
 	if err != nil {
 		log.Fatalf("Failed to start client: %v", err)
@@ -99,7 +110,7 @@ func main() {
 	go func() {
 		for range ticker.C {
 			fps := frameCounter.Swap(0)
-			FramesPerSecond.Set(float64(fps))
+			metrics.FramesPerSecond.Set(float64(fps))
 		}
 	}()
 
@@ -135,19 +146,19 @@ func main() {
 			stats := c.Stats()
 
 			// RTSP Metrics
-			ClientConnBytesReceived.Set(float64(stats.Conn.BytesReceived))
-			ClientConnBytesSent.Set(float64(stats.Conn.BytesSent))
-			SessionBytesReceived.Set(float64(stats.Session.BytesReceived))
+			metrics.ClientConnBytesReceived.Set(float64(stats.Conn.BytesReceived))
+			metrics.ClientConnBytesSent.Set(float64(stats.Conn.BytesSent))
+			metrics.SessionBytesReceived.Set(float64(stats.Session.BytesReceived))
 
 			// RTP Metrics
-			SessionRTPPacketsReceived.Add(float64(stats.Session.RTPPacketsReceived))
-			SessionRTPPacketsLost.Add(float64(stats.Session.RTPPacketsLost))
-			SessionRTPPacketsInError.Add(float64(stats.Session.RTPPacketsInError))
-			SessionRTPJitter.Set(stats.Session.RTPPacketsJitter)
+			metrics.SessionRTPPacketsReceived.Add(float64(stats.Session.RTPPacketsReceived))
+			metrics.SessionRTPPacketsLost.Add(float64(stats.Session.RTPPacketsLost))
+			metrics.SessionRTPPacketsInError.Add(float64(stats.Session.RTPPacketsInError))
+			metrics.SessionRTPJitter.Set(stats.Session.RTPPacketsJitter)
 
 			// RTCP Metrics
-			SessionRTCPPacketsReceived.Add(float64(stats.Session.RTCPPacketsReceived))
-			SessionRTCPPacketsInError.Add(float64(stats.Session.RTCPPacketsInError))
+			metrics.SessionRTCPPacketsReceived.Add(float64(stats.Session.RTCPPacketsReceived))
+			metrics.SessionRTCPPacketsInError.Add(float64(stats.Session.RTCPPacketsInError))
 		}
 	})
 
@@ -157,8 +168,7 @@ func main() {
 		log.Fatalf("Failed to play stream: %v", err)
 	}
 
-	// -- Start Prometheus Metrics Server --
-	http.Handle("/metrics", promhttp.Handler())
-	log.Println("Serving metrics on :8080")
-	http.ListenAndServe(":8080", nil)
+	if err := c.Wait(); err != nil {
+		log.Fatal("Failed to keep client connection open.")
+	}
 }
