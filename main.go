@@ -39,7 +39,7 @@ func main() {
 		log.Fatalf("Failed to parse config file: %v", err)
 	}
 
-	// -- Start RTSP Sessions
+	// -- Start RTSP Sessions --
 	for _, sessionConfig := range config.Sessions {
 		go startSession(sessionConfig)
 	}
